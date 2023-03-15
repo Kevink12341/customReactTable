@@ -1,4 +1,7 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import React, { ReactElement, ReactNode } from "react"
+import { Form } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
 
 interface Props {
@@ -9,7 +12,7 @@ interface Props {
 interface State{
   data?: Array<any>;
   header?: any;
-
+  searchValue?: any;
 };
 
 class ArrToTable extends React.Component <Props, State> {
@@ -17,7 +20,8 @@ class ArrToTable extends React.Component <Props, State> {
         super(props);
         this.state = {}
 
-        this.fetchData = this.fetchData.bind(this)
+        this.fetchData = this.fetchData.bind(this);
+        this.searchHandler = this.searchHandler.bind(this);
     }
     
     fetchData(){
@@ -26,6 +30,13 @@ class ArrToTable extends React.Component <Props, State> {
     }
     componentDidMount(): void {
       this.fetchData()
+    }
+
+    searchHandler(event:any){
+      let { searchValue } = this.state
+      let searchValueUnformatted = event.target.value != undefined ? event.target.value : ""
+    
+      this.setState({searchValue: searchValueUnformatted})
     }
 
     inferDataModel(){
@@ -61,9 +72,14 @@ class ArrToTable extends React.Component <Props, State> {
           }
         })
       }
-
      
-      return (
+      return ( 
+      <>
+        <Form.Group>
+          <Form.Control placeholder="Search" onChange={e => {this.searchHandler(e)}}/>
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
+        </Form.Group>
+
         <Table striped bordered hover>
           <thead>
             <tr>           
@@ -75,7 +91,8 @@ class ArrToTable extends React.Component <Props, State> {
           <tbody>
               {rows}
           </tbody>
-      </Table>
+        </Table>
+      </>
       );
     };
 };
