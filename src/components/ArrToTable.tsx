@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { library } from '@fortawesome/fontawesome-svg-core'; 
+import { IconName, library } from '@fortawesome/fontawesome-svg-core'; 
 import { faFontAwesome, faMagnifyingGlass, faSortAsc } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
@@ -17,15 +17,18 @@ interface State{
   data: Array<any>;
   header?: any;
   searchArray?: Array<any>;
+  sortingToggle: boolean | undefined;
+  icon: IconName;
 };
 
 class ArrToTable extends React.Component <Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = { data: []};
+        this.state = { data: [], sortingToggle: undefined, icon: "sort"};
 
         this.fetchData = this.fetchData.bind(this);
         this.searchHandler = this.searchHandler.bind(this);
+        this.sorting = this.sorting.bind(this);
     }
     
     fetchData(){
@@ -59,38 +62,47 @@ class ArrToTable extends React.Component <Props, State> {
       };
     };
 
-    sorting(event:any, index:number){
-      console.log(event, index)
-      let data = this.state.data
+    sorting(event:any, index:number, dataParam:Array<any>){
+      let data = dataParam
       let keys: Array<any> = []
       if(data){
         keys = Object.keys(data[0])
       }
+      if(event && this.state.sortingToggle == undefined){
+        this.setState({sortingToggle: true })
+      } else { this.setState({sortingToggle: !this.state.sortingToggle})}
+
 
       let sortAsc = () => {
         data.sort((a,b)=>{
-          // console.log(a,b, "logme")
           const keyA = a[keys[index]].toString().toLowerCase();
           const keyB = b[keys[index]].toString().toLowerCase();
-          if(keyA < keyB){
-            return -1;
-          }
-          if(keyA > keyB){
-            return 1;
-          }
-          return 0
+          return keyA < keyB ? -1 :1 
         })
-
+        this.setState({data: data, icon: "sort-up"}) 
       };
       let sortDesc = () => {
-
+        data.sort((a,b)=>{
+          const keyA = a[keys[index]].toString().toLowerCase();
+          const keyB = b[keys[index]].toString().toLowerCase();
+            return keyA > keyB ? -1 :1 
+        })
+        this.setState({data: data, icon: "sort-down"}) 
       };
-    sortAsc()
+
+      switch(this.state.sortingToggle){
+        case true:
+          return sortAsc();
+        case false: 
+          return sortDesc();
+        case undefined:
+          return
+      }
     }
 
     render() {
 
-      let {data, searchArray} = this.state;
+      let {data, searchArray, icon} = this.state;
       if(searchArray){
         data =  searchArray;
       };
@@ -133,7 +145,7 @@ class ArrToTable extends React.Component <Props, State> {
           <thead>
             <tr>           
               {this.state.data.length > 0 && Object.keys(this.state.data[0]).map((header, index) =>(
-                <th key={index} > {header} &nbsp; <FontAwesomeIcon className="float-end" icon="sort" onClick={e => {this.sorting(e,index)}} /></th>
+                <th key={index} > {header} &nbsp; <FontAwesomeIcon className="float-end" icon={icon} onClick={e => {this.sorting(e,index, data)}} /></th>
       
               ))}
             </tr>
