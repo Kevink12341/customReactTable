@@ -5,6 +5,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
 import { Form, Row } from "react-bootstrap";
 import Table from 'react-bootstrap/Table';
+import { click } from "@testing-library/user-event/dist/click";
 
 library.add(fas, faFontAwesome)
 
@@ -18,17 +19,19 @@ interface State{
   header?: any;
   searchArray?: Array<any>;
   sortingToggle: boolean | undefined;
-  icon: IconName;
+  sortingNameToggle: "sort-up" | "sort-down" | undefined
+  selectedTH: number |  undefined; 
 };
 
 class ArrToTable extends React.Component <Props, State> {
     constructor(props: Props) {
         super(props);
-        this.state = { data: [], sortingToggle: undefined, icon: "sort"};
+        this.state = { data: [], sortingToggle: undefined, sortingNameToggle: undefined, selectedTH: undefined};
 
         this.fetchData = this.fetchData.bind(this);
         this.searchHandler = this.searchHandler.bind(this);
         this.sorting = this.sorting.bind(this);
+        this.handleCLick =  this.handleCLick.bind(this);
     }
     
     fetchData(){
@@ -39,12 +42,19 @@ class ArrToTable extends React.Component <Props, State> {
     componentDidMount(): void {
       this.fetchData();
     };
+    componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
+      if(prevState.searchArray != this.state.searchArray || prevState.sortingToggle !=this.state.sortingToggle){
+        if(this.state.selectedTH != undefined){
+          this.sorting(this.state.selectedTH, this.state.data)
+        }
+      }
+    }
 
     searchHandler(event:any){
       let {searchArray} = this.state;
       let searchValueUnformatted = event.target.value != undefined ? event.target.value : "";
       
-      let data = this.state.data;
+      let data = this.props.data;
       let filteredDataArray: Array<any> = [];
       if(data){
         data.forEach((row, index) => {
@@ -58,28 +68,26 @@ class ArrToTable extends React.Component <Props, State> {
           };
         });
         let removeDuplicates= [...new Set(filteredDataArray)];
-        this.setState({searchArray: removeDuplicates});
+        this.setState({data: removeDuplicates});
       };
     };
 
-    sorting(event:any, index:number, dataParam:Array<any>){
+    sorting( index:number, dataParam:Array<any>){
+
       let data = dataParam
       let keys: Array<any> = []
       if(data){
         keys = Object.keys(data[0])
       }
-      if(event && this.state.sortingToggle == undefined){
-        this.setState({sortingToggle: true })
-      } else { this.setState({sortingToggle: !this.state.sortingToggle})}
 
-
+      console.log("wtf is this", data)
       let sortAsc = () => {
         data.sort((a,b)=>{
           const keyA = a[keys[index]].toString().toLowerCase();
           const keyB = b[keys[index]].toString().toLowerCase();
           return keyA < keyB ? -1 :1 
         })
-        this.setState({data: data, icon: "sort-up"}) 
+        this.setState({data: data}) 
       };
       let sortDesc = () => {
         data.sort((a,b)=>{
@@ -87,7 +95,7 @@ class ArrToTable extends React.Component <Props, State> {
           const keyB = b[keys[index]].toString().toLowerCase();
             return keyA > keyB ? -1 :1 
         })
-        this.setState({data: data, icon: "sort-down"}) 
+        this.setState({data: data}) 
       };
 
       switch(this.state.sortingToggle){
@@ -99,10 +107,24 @@ class ArrToTable extends React.Component <Props, State> {
           return
       }
     }
+    handleCLick(e:any, index: number){
+      /*  Fetches the index of the tableheaders.
+          Sets the name of the Tableheader if it's selected to sort-up || sort-down
+          Sets state for the sorting function under selectedTH 
+      */
+      let {sortingNameToggle, selectedTH, sortingToggle} = this.state
+      this.setState({sortingToggle: true})
+      if(sortingToggle == false || undefined){
+        this.setState({sortingNameToggle: "sort-up", selectedTH: index})
+      }
+      else {
+        this.setState({sortingNameToggle: "sort-down", selectedTH: index, sortingToggle: !this.state.sortingToggle})
+      }
+    }
 
     render() {
-
-      let {data, searchArray, icon} = this.state;
+      
+      let {data, searchArray} = this.state;
       if(searchArray){
         data =  searchArray;
       };
@@ -130,7 +152,19 @@ class ArrToTable extends React.Component <Props, State> {
           };
         });
       };
-     
+      
+      let tableHeaders: Array<ReactNode> = [];
+      if(this.props.data){
+        let keys = Object.keys(this.props.data[0])
+        if(keys){
+          keys.map((header, index:number) =>(
+
+            tableHeaders.push(
+            <th key={"TH"+ index} > {header} &nbsp; <FontAwesomeIcon className="float-end" key={index} icon={this.state.sortingNameToggle && this.state.selectedTH == index ? this.state.sortingNameToggle : "sort"} onClick={e => this.handleCLick(e, index)} /> </th>
+            )
+          ))
+        }
+      }
       return ( 
       <>
         <Form.Group>
@@ -144,10 +178,7 @@ class ArrToTable extends React.Component <Props, State> {
         <Table striped bordered hover>
           <thead>
             <tr>           
-              {this.state.data.length > 0 && Object.keys(this.state.data[0]).map((header, index) =>(
-                <th key={index} > {header} &nbsp; <FontAwesomeIcon className="float-end" icon={icon} onClick={e => {this.sorting(e,index, data)}} /></th>
-      
-              ))}
+              {tableHeaders}
             </tr>
           </thead>
           <tbody>
