@@ -17,50 +17,60 @@ interface Props {
 interface State {
   data: Array<any>;
   header?: any;
+  searchValue: string | undefined;
   searchArray?: Array<any>;
-  sortingToggle: boolean | undefined;
-  sortingNameToggle: "sort-up" | "sort-down" | undefined
-  selectedTH: number | undefined;
+  applySortingToggle: boolean | undefined;
+  setapplySortingIconName: "sort-up" | "sort-down" | undefined
+  selectedTableHeaderIndex: number | undefined;
 };
 
 class ArrToTable extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { data: [], sortingToggle: undefined, sortingNameToggle: undefined, selectedTH: undefined };
+    this.state = { data: [], applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined };
 
-    this.fetchData = this.fetchData.bind(this);
-    this.searchHandler = this.searchHandler.bind(this);
-    this.sorting = this.sorting.bind(this);
-    this.handleCLick = this.handleCLick.bind(this);
+    this.dataHandler = this.dataHandler.bind(this);
+    this.searchPhraseHandler = this.searchPhraseHandler.bind(this);
+    this.applySorting = this.applySorting.bind(this);
+    this.handleTableHeaderClick = this.handleTableHeaderClick.bind(this);
   }
 
-  fetchData() {
+  dataHandler() {
     let data = this.props.data;
     this.setState({ data: data });
   };
 
   componentDidMount(): void {
-    this.fetchData();
+    this.dataHandler();
   };
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any): void {
-    if (prevState.searchArray != this.state.searchArray || prevState.sortingToggle != this.state.sortingToggle) {
-      if (this.state.selectedTH != undefined) {
-        this.sorting(this.state.selectedTH, this.state.data)
-      }
-    }
+
+  filterHandler(){
+    let {data, selectedTableHeaderIndex, searchValue} = this.state
+    if(searchValue != undefined && data){
+      data = this.applySearchFilter(data, searchValue);
+    };
+
+    if(data && selectedTableHeaderIndex != undefined){
+      this.applySorting(selectedTableHeaderIndex, data)
+    };
+
+    return data
   }
 
-  searchHandler(event: any) {
-    let { searchArray } = this.state;
-    let searchValueUnformatted = event.target.value != undefined ? event.target.value : "";
+  searchPhraseHandler(event: any) {
+    let searchValue =  this.state
+    let searchValueUnformatted = event.target.value != undefined ? event.target.value : undefined;
 
-    let data = this.props.data;
+    this.setState({searchValue: searchValueUnformatted});
+  };
+
+  applySearchFilter(data: Array<any>, searchValue: string ){
     let filteredDataArray: Array<any> = [];
     if (data) {
       data.forEach((row, index) => {
         if (row) {
           for (const key in row) {
-            if (row[key]!= undefined && row[key].toString().toLowerCase().includes(searchValueUnformatted.toString().toLowerCase())) {
+            if (row[key]!= undefined && row[key].toString().toLowerCase().includes(searchValue.toString().toLowerCase())) {
               if (data)
                 filteredDataArray.push(data[index]);
             };
@@ -68,16 +78,16 @@ class ArrToTable extends React.Component<Props, State> {
         };
       });
       let removeDuplicates = [...new Set(filteredDataArray)];
-      this.setState({ data: removeDuplicates });
+      data = removeDuplicates
     };
+    return data
   };
 
-  sorting(index: number, dataParam: Array<any>) {
-
-    let data = dataParam
-    let keys: Array<any> = []
+  applySorting(index: number, dataParam: Array<any>) {
+    let data = dataParam;
+    let keys: Array<any> = [];
     if (data) {
-      keys = Object.keys(data[0])
+      keys = Object.keys(data[0]);
     }
 
     let sortAsc = () => {
@@ -86,48 +96,48 @@ class ArrToTable extends React.Component<Props, State> {
         const keyB = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
         return keyA < keyB ? -1 : 1
       })
-      this.setState({ data: data })
+      return data;
     };
     let sortDesc = () => {
       data.sort((a, b) => {
         const keyA = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
         const keyB = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
         return keyA > keyB ? -1 : 1
-      })
-      this.setState({ data: data })
+      });
+      return data;
     };
 
-    switch (this.state.sortingToggle) {
+    switch (this.state.applySortingToggle) {
       case true:
         return sortAsc();
       case false:
         return sortDesc();
       case undefined:
         return
-    }
-  }
-  handleCLick(e: any, index: number) {
-    /*  Fetches the index of the tableheaders.
+    };
+  };
+
+  handleTableHeaderClick(e: any, index: number) {
+    /*  Fetches the index of the selected tableheader.
         Sets the name of the Tableheader if it's selected to sort-up || sort-down
-        Sets state for the sorting function under selectedTH 
+        Sets state for the applySorting function under selectedTableHeaderIndex 
     */
-    let { sortingNameToggle, selectedTH, sortingToggle } = this.state
-    this.setState({ sortingToggle: true })
-    if (sortingToggle == false || undefined) {
-      this.setState({ sortingNameToggle: "sort-up", selectedTH: index })
+    let { setapplySortingIconName, selectedTableHeaderIndex, applySortingToggle } = this.state;
+    this.setState({ applySortingToggle: true });
+    if (applySortingToggle == false || undefined) {
+      this.setState({ setapplySortingIconName: "sort-up", selectedTableHeaderIndex: index });
     }
     else {
-      this.setState({ sortingNameToggle: "sort-down", selectedTH: index, sortingToggle: !this.state.sortingToggle })
-    }
-  }
+      this.setState({ setapplySortingIconName: "sort-down", selectedTableHeaderIndex: index, applySortingToggle: !this.state.applySortingToggle });
+    };
+  };
 
   render() {
+    let { data } = this.state;
+    data = this.filterHandler()
+    console.log(data, "in render")
 
-    let { data, searchArray } = this.state;
-    if (searchArray) {
-      data = searchArray;
-    };
-
+    // custom loops for data rows/columns
     let rows: Array<ReactNode> = [];
     if (data) {
       data.forEach((row, index) => {
@@ -152,23 +162,24 @@ class ArrToTable extends React.Component<Props, State> {
       });
     };
 
+    // custom loop for tableHeaders
     let tableHeaders: Array<ReactNode> = [];
     if (this.props.data) {
-      let keys = Object.keys(this.props.data[0])
+      let keys = Object.keys(this.props.data[0]);
       if (keys) {
         keys.map((header, index: number) => (
-
           tableHeaders.push(
-            <th key={"TH" + index} > {header} &nbsp; <FontAwesomeIcon className="float-end" key={index} icon={this.state.sortingNameToggle && this.state.selectedTH == index ? this.state.sortingNameToggle : "sort"} onClick={e => this.handleCLick(e, index)} /> </th>
+            <th key={"TH" + index} > {header} &nbsp; <FontAwesomeIcon className="float-end" key={index} icon={this.state.setapplySortingIconName && this.state.selectedTableHeaderIndex == index ? this.state.setapplySortingIconName : "sort"} onClick={e => this.handleTableHeaderClick(e, index)} /> </th>
           )
-        ))
-      }
-    }
+        ));
+      };
+    };
+
     return (
       <>
         <Form.Group>
           <>
-            <Form.Control placeholder="Search" onChange={e => { this.searchHandler(e) }}>
+            <Form.Control placeholder="Search" onChange={e => { this.searchPhraseHandler(e) }}>
             </Form.Control>
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </>
