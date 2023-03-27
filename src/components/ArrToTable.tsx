@@ -3,7 +3,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFontAwesome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
-import { Form } from "react-bootstrap";
+import { Form, Pagination } from "react-bootstrap";
 import Table, { TableProps } from 'react-bootstrap/Table';
 
 library.add(fas, faFontAwesome)
@@ -11,6 +11,7 @@ library.add(fas, faFontAwesome)
 interface Props extends TableProps {
   data: Array<any>;
   any?: any;
+  limit?: number | undefined;
 };
 
 interface State {
@@ -44,12 +45,17 @@ class ArrToTable extends React.Component<Props, State> {
   };
 
   filterHandler(){
+    /* calls the filter, sorting && limit function
+      each step modifies data
+      see functions for detailed descriptions
+      filterHandler() is called to update data in render()
+    */
     let {data, selectedTableHeaderIndex, searchValue} = this.state
     if(searchValue != undefined && data){
       data = this.applySearchFilter(data, searchValue);
     };
 
-    if(data && selectedTableHeaderIndex != undefined){
+    if(data.length > 0  && selectedTableHeaderIndex != undefined){
       this.applySorting(selectedTableHeaderIndex, data)
     };
 
@@ -57,6 +63,8 @@ class ArrToTable extends React.Component<Props, State> {
   }
 
   searchPhraseHandler(event: any) {
+    // input field handler for search phrases
+    // no formatting/validity check yet
     let searchValue =  this.state
     let searchValueUnformatted = event.target.value != undefined ? event.target.value : undefined;
 
@@ -64,6 +72,11 @@ class ArrToTable extends React.Component<Props, State> {
   };
 
   applySearchFilter(data: Array<any>, searchValue: string ){
+    /* search filter over any value in any column/row
+      to do:
+      - filter over key phrases
+      - filter over multiple keys
+    */
     let filteredDataArray: Array<any> = [];
     if (data) {
       data.forEach((row, index) => {
@@ -83,6 +96,11 @@ class ArrToTable extends React.Component<Props, State> {
   };
 
   applySorting(index: number, dataParam: Array<any>) {
+    /* basic bubble sorting
+      receives the index (key) which has been sorted
+      will use sort Ascending or Descending based on which state(Boolean) is used
+      applies after filtering.
+    */
     let data = dataParam;
     let keys: Array<any> = [];
     if (data) {
@@ -91,16 +109,16 @@ class ArrToTable extends React.Component<Props, State> {
 
     let sortAsc = () => {
       data.sort((a, b) => {
-        const keyA = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
-        const keyB = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
+        const keyA:any = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
+        const keyB:any = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
         return keyA < keyB ? -1 : 1
       })
       return data;
     };
     let sortDesc = () => {
       data.sort((a, b) => {
-        const keyA = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
-        const keyB = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
+        const keyA:any = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
+        const keyB:any = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
         return keyA > keyB ? -1 : 1
       });
       return data;
@@ -131,14 +149,38 @@ class ArrToTable extends React.Component<Props, State> {
     };
   };
 
+  pagination(data:any, limiter?: number){
+    /*  data = filtered && sorted data
+        receives limiter from parent
+        limiter = amount of rows per table page
+        in the case of no limiter is defined in the parent it assumes a defaultLimiter
+    */
+    let active:number | undefined = 1;
+    let defaultLimiter:number = 5000;
+    let dataList = [];
+    if(limiter != undefined){
+      defaultLimiter = limiter
+    }
+    let rowsPerPage = data.length / defaultLimiter <1 ? 1 : Math.ceil(data.length/defaultLimiter)
+
+    for(let number=1; number <= rowsPerPage; number++){
+      dataList.push(
+        <Pagination.Item key={number} active={number=== (active ? active: 1)}>
+          {number}
+        </Pagination.Item>
+      )
+    }
+
+  }
+  
+
   render() {
     let { data } = this.state;
-    data = this.filterHandler()
-    console.log(data, "in render")
+    data = this.filterHandler();
 
     // custom loops for data rows/columns
     let rows: Array<ReactNode> = [];
-    if (data) {
+    if (data && data.length > 0) {
       data.forEach((row, index) => {
         let columns: Array<ReactElement> = [];
         let keys = Object.keys(row);
@@ -163,7 +205,7 @@ class ArrToTable extends React.Component<Props, State> {
 
     // custom loop for tableHeaders
     let tableHeaders: Array<ReactNode> = [];
-    if (this.props.data) {
+    if (data && data.length > 0) {
       let keys = Object.keys(this.props.data[0]);
       if (keys) {
         keys.map((header, index: number) => (
