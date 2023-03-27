@@ -1,15 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconName, library } from '@fortawesome/fontawesome-svg-core';
-import { faFontAwesome, faMagnifyingGlass, faSortAsc } from "@fortawesome/free-solid-svg-icons";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faFontAwesome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
-import { Form, Row } from "react-bootstrap";
-import Table from 'react-bootstrap/Table';
-import { click } from "@testing-library/user-event/dist/click";
+import { Form } from "react-bootstrap";
+import Table, { TableProps } from 'react-bootstrap/Table';
 
 library.add(fas, faFontAwesome)
 
-interface Props {
+interface Props extends TableProps {
   data: Array<any>;
   any?: any;
 };
@@ -179,13 +178,13 @@ class ArrToTable extends React.Component<Props, State> {
       <>
         <Form.Group>
           <>
-            <Form.Control placeholder="Search" onChange={e => { this.searchPhraseHandler(e) }}>
+            <Form.Control placeholder="Search" onChange={e => { this.searchPhraseHandler(e) }} size={this.props.size as any} >
             </Form.Control>
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </>
         </Form.Group>
 
-        <Table striped bordered hover>
+        <Table {...this.props}>
           <thead>
             <tr>
               {tableHeaders}
