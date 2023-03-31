@@ -3,46 +3,43 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFontAwesome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
-import { Form, Pagination } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import Table, { TableProps } from 'react-bootstrap/Table';
+import Pagination from 'react-bootstrap/Pagination';
+import PageItem from 'react-bootstrap/PageItem'
+import { isThisTypeNode } from "typescript";
 
 library.add(fas, faFontAwesome)
 
 interface Props extends TableProps {
   data: Array<any>;
   any?: any;
-  limit?: number | undefined;
+  limit: number;
 };
 
 interface State {
-  data: Array<any>;
   header?: any;
   searchValue: string | undefined;
   searchArray?: Array<any>;
   applySortingToggle: boolean | undefined;
   setapplySortingIconName: "sort-up" | "sort-down" | undefined
   selectedTableHeaderIndex: number | undefined;
+  paginationIndex: number;
 };
 
 class ArrToTable extends React.Component<Props, State> {
+  public static defaultProps ={
+      limit: 50
+  }
+
   constructor(props: Props) {
     super(props);
-    this.state = { data: [], applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined };
+    this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined, paginationIndex: 1 };
 
-    this.dataHandler = this.dataHandler.bind(this);
     this.searchPhraseHandler = this.searchPhraseHandler.bind(this);
     this.applySorting = this.applySorting.bind(this);
     this.handleTableHeaderClick = this.handleTableHeaderClick.bind(this);
   }
-
-  dataHandler() {
-    let data = this.props.data;
-    this.setState({ data: data });
-  };
-
-  componentDidMount(): void {
-    this.dataHandler();
-  };
 
   filterHandler(){
     /* calls the filter, sorting && limit function
@@ -50,7 +47,9 @@ class ArrToTable extends React.Component<Props, State> {
       see functions for detailed descriptions
       filterHandler() is called to update data in render()
     */
-    let {data, selectedTableHeaderIndex, searchValue} = this.state
+    let { selectedTableHeaderIndex, searchValue, paginationIndex} = this.state
+    let data = this.props.data
+
     if(searchValue != undefined && data){
       data = this.applySearchFilter(data, searchValue);
     };
@@ -58,6 +57,10 @@ class ArrToTable extends React.Component<Props, State> {
     if(data.length > 0  && selectedTableHeaderIndex != undefined){
       this.applySorting(selectedTableHeaderIndex, data)
     };
+
+    if(paginationIndex){
+      data = this.pagination(data, paginationIndex, this.props.limit)
+    }
 
     return data
   }
@@ -149,33 +152,36 @@ class ArrToTable extends React.Component<Props, State> {
     };
   };
 
-  pagination(data:any, limiter?: number){
+  pagination(data:any, paginationIndex: number,  limiter: number){
     /*  data = filtered && sorted data
         receives limiter from parent
         limiter = amount of rows per table page
         in the case of no limiter is defined in the parent it assumes a defaultLimiter
     */
-    let active:number | undefined = 1;
-    let defaultLimiter:number = 5000;
-    let dataList = [];
-    if(limiter != undefined){
-      defaultLimiter = limiter
-    }
-    let rowsPerPage = data.length / defaultLimiter <1 ? 1 : Math.ceil(data.length/defaultLimiter)
+    let pages:number = 1;
 
-    for(let number=1; number <= rowsPerPage; number++){
-      dataList.push(
-        <Pagination.Item key={number} active={number=== (active ? active: 1)}>
-          {number}
-        </Pagination.Item>
-      )
-    }
+    let rowsPerPage = data.length / limiter <1 ? 1 : Math.ceil(data.length/limiter)
+    if(rowsPerPage != 1 ){
+      pages = rowsPerPage
+    };
+
+    if(pages){
+      data = data.slice(paginationIndex*limiter-1, paginationIndex*limiter+1)
+    };
+    console.log(data, limiter,paginationIndex,  "log")
+
+    return data
 
   }
-  
+  clickHandlerPagination(event:any){
+    let {paginationIndex} =  this.state
+    if(event){
+      this.setState({paginationIndex: Number(event.target.innerHTML)})
+    }
+  }
 
   render() {
-    let { data } = this.state;
+    let data  = this.props.data
     data = this.filterHandler();
 
     // custom loops for data rows/columns
@@ -216,6 +222,19 @@ class ArrToTable extends React.Component<Props, State> {
       };
     };
 
+    let items: Array<ReactNode> = [];
+    let active; 
+    if(this.state.paginationIndex){
+      active = this.state.paginationIndex
+    };
+    for(let number=1; number <= 5; number++){
+      items.push(
+        <Pagination.Item key={number} active={number=== active}>
+          {number}
+        </Pagination.Item>
+      );
+    };
+
     return (
       <>
         <Form.Group>
@@ -236,6 +255,9 @@ class ArrToTable extends React.Component<Props, State> {
             {rows}
           </tbody>
         </Table>
+        <Pagination onClick={e => {this.clickHandlerPagination(e)}}>
+          {items}
+        </Pagination>
       </>
     );
   };

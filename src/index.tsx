@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ArrToTable data={users} variant="dark" striped hover />
+    <ArrToTable data={users} limit={2} variant="dark" striped hover />
   </React.StrictMode>
 );
 
