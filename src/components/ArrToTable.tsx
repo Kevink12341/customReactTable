@@ -153,6 +153,11 @@ class ArrToTable extends React.Component<Props, State> {
     if(rowsPerPage != 1 ){
       pages = rowsPerPage
     };
+
+    if(paginationIndex != 1 && pages == 1){
+      this.setState({paginationIndex: 1})
+      return data
+    }
     this.maxLimitPages = pages
 
     if(pages){
