@@ -31,6 +31,7 @@ class ArrToTable extends React.Component<Props, State> {
   public static defaultProps ={
       limit: 50
   }
+  maxLimitPages: number =  1
 
   constructor(props: Props) {
     super(props);
@@ -164,9 +165,10 @@ class ArrToTable extends React.Component<Props, State> {
     if(rowsPerPage != 1 ){
       pages = rowsPerPage
     };
+    this.maxLimitPages = pages
 
     if(pages){
-      data = data.slice(paginationIndex*limiter-1, paginationIndex*limiter+1)
+      data = data.slice((paginationIndex-1)*limiter, (paginationIndex)*limiter)
     };
     console.log(data, limiter,paginationIndex,  "log")
 
@@ -227,7 +229,8 @@ class ArrToTable extends React.Component<Props, State> {
     if(this.state.paginationIndex){
       active = this.state.paginationIndex
     };
-    for(let number=1; number <= 5; number++){
+ 
+    for(let number=1; number <= this.maxLimitPages; number++){
       items.push(
         <Pagination.Item key={number} active={number=== active}>
           {number}
