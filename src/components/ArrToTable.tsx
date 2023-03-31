@@ -6,8 +6,7 @@ import React, { ReactElement, ReactNode } from "react"
 import { Form } from "react-bootstrap";
 import Table, { TableProps } from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
-import PageItem from 'react-bootstrap/PageItem'
-import { isThisTypeNode } from "typescript";
+import mySortFunction from "../helpers/sorting";
 
 library.add(fas, faFontAwesome)
 
@@ -109,33 +108,22 @@ class ArrToTable extends React.Component<Props, State> {
     let keys: Array<any> = [];
     if (data) {
       keys = Object.keys(data[0]);
+    };
+
+    let searchDirection
+    switch(this.state.applySortingToggle != undefined){
+      case this.state.applySortingToggle == true:
+        searchDirection = "asc"
+        break
+      case this.state.applySortingToggle == false:
+        searchDirection = "desc"
+        break
     }
 
-    let sortAsc = () => {
-      data.sort((a, b) => {
-        const keyA:any = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
-        const keyB:any = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
-        return keyA < keyB ? -1 : 1
-      })
-      return data;
-    };
-    let sortDesc = () => {
-      data.sort((a, b) => {
-        const keyA:any = a[keys[index]] != undefined ? a[keys[index]].toString().toLowerCase() : "";
-        const keyB:any = b[keys[index]] != undefined ? b[keys[index]].toString().toLowerCase() : "";
-        return keyA > keyB ? -1 : 1
-      });
-      return data;
-    };
-
-    switch (this.state.applySortingToggle) {
-      case true:
-        return sortAsc();
-      case false:
-        return sortDesc();
-      case undefined:
-        return
-    };
+    if(data && searchDirection){
+      data = mySortFunction(data, keys[index], searchDirection);
+    }
+    return data 
   };
 
   handleTableHeaderClick(e: any, index: number) {
@@ -170,7 +158,6 @@ class ArrToTable extends React.Component<Props, State> {
     if(pages){
       data = data.slice((paginationIndex-1)*limiter, (paginationIndex)*limiter)
     };
-    console.log(data, limiter,paginationIndex,  "log")
 
     return data
 
@@ -184,6 +171,8 @@ class ArrToTable extends React.Component<Props, State> {
 
   render() {
     let data  = this.props.data
+    let paginationIndex = this.state.paginationIndex
+
     data = this.filterHandler();
 
     // custom loops for data rows/columns
@@ -226,13 +215,13 @@ class ArrToTable extends React.Component<Props, State> {
 
     let items: Array<ReactNode> = [];
     let active; 
-    if(this.state.paginationIndex){
-      active = this.state.paginationIndex
+    if(paginationIndex){
+      active = paginationIndex
     };
  
     for(let number=1; number <= this.maxLimitPages; number++){
       items.push(
-        <Pagination.Item key={number} active={number=== active}>
+        <Pagination.Item key={number} active={number=== active} onClick={e => {this.clickHandlerPagination(e)}}>
           {number}
         </Pagination.Item>
       );
@@ -258,7 +247,7 @@ class ArrToTable extends React.Component<Props, State> {
             {rows}
           </tbody>
         </Table>
-        <Pagination onClick={e => {this.clickHandlerPagination(e)}}>
+        <Pagination>
           {items}
         </Pagination>
       </>
