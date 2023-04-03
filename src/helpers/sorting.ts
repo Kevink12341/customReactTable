@@ -26,6 +26,7 @@ function mySortFunction(data:Array<any>, searchKey:any, direction?:string ): Arr
     };
 
 function sortingHelper(data: Array<any>, searchKey: "string"):string{
+    // probably needs a rewrite for bigger datasets.
     let datatype = ""
     for(let i = 1 ; i< data.length ; i++) {
         if(typeof(data[i][searchKey]) != typeof(data[i-1][searchKey])){
@@ -67,8 +68,8 @@ function sortMixedTypeAscending(a:any, b:any){
     return mixedA < mixedB ? -1 : 1
 };
 function sortMixedTypeDescending(a:any, b:any){
-    const mixedA = a.toString() != undefined ? a.toString().toLowerCase() : "";
-    const mixedB = b.toString() != undefined ? b.toString().toLowerCase() : "";
+    const mixedA = a.toLocaleString() != undefined ? a.toLocaleString().toLowerCase() : "";
+    const mixedB = b.toLocaleString() != undefined ? b.toLocaleString().toLowerCase() : "";
     return mixedA > mixedB ? -1 : 1
 };
 
