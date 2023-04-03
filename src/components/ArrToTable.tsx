@@ -3,7 +3,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFontAwesome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
-import { Form } from "react-bootstrap";
+import { Col, Container, Form, Row } from "react-bootstrap";
 import Table, { TableProps } from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import mySortFunction from "../helpers/sorting";
@@ -154,11 +154,13 @@ class ArrToTable extends React.Component<Props, State> {
       pages = rowsPerPage
     };
 
-    if(paginationIndex != 1 && pages == 1){
+    // resets pagination index to page 1 if the data changes
+    if(paginationIndex != 1 && paginationIndex>pages){
       this.setState({paginationIndex: 1})
       return data
-    }
-    this.maxLimitPages = pages
+    };
+
+    this.maxLimitPages = pages;
 
     if(pages){
       data = data.slice((paginationIndex-1)*limiter, (paginationIndex)*limiter)
@@ -234,14 +236,21 @@ class ArrToTable extends React.Component<Props, State> {
 
     return (
       <>
-        <Form.Group>
-          <>
-            <Form.Control placeholder="Search" onChange={e => { this.searchPhraseHandler(e) }} size={this.props.size as any} >
-            </Form.Control>
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </>
-        </Form.Group>
-
+        <Container fluid="true">
+          <Row>
+            <Col >
+              <Form.Group>
+                <>
+                  <Form.Control placeholder="Search" onChange={e => { this.searchPhraseHandler(e) }} size={this.props.size as any} >
+                  </Form.Control>
+                </>
+              </Form.Group>
+            </Col>
+            <Col xs="1">
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </Col>
+          </Row>
+        </Container>
         <Table {...this.props}>
           <thead>
             <tr>
