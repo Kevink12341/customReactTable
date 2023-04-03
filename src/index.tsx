@@ -5,7 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import ArrToTable from './components/ArrToTable';
 import { data } from './redditposts';
 
-let users = [{ id: 1, email: "john@doe.nl", password: "", name: "asdasdasdasdasd" }, { id: 1, email: undefined, password: "12345", name: "asdasdasdasdasd" }, { id: 1, email: "john@doe.nl", password: "asdasdasdasdasd", name: "asdasdasdasdasd" }, { id: 1, email: "john@doe.nl", password:"something", name:"cookies" }, { id: 1, email: "john@doe.nl", password: "asdasdasdasdasd", name: "asdasdasdasdasd" }, { id: 2, email: "doe@john.nl", password: "312453454", name: "xddxxdcd" }, { id: 0, email: "abc@def.nl", password: "aaaaa", name: "abc" }, { id: 1, email: undefined, password: "dcasfdas23", name: "gdfgdf322asdf" }]; // array of users
+let users = [{ id: 1, email: "john@doe.nl", password: "", name: "asdasdasdasdasd" }, { id: 1, email: undefined, password: "12345", name: "asdasdasdasdasd" }, { id: 1, email: "john@doe.nl", password: "asdasdasdasdasd", name: "asdasdasdasdasd" }, { id: 1, email: "john@doe.nl", password:"something", name:"cookies" }, { id: 1, email: "john@doe.nl", password: "asdasdasdasdasd", name: "asdasdasdasdasd" }, { id: 2, email: "doe@john.nl", password: 312453454, name: "xddxxdcd" }, { id: 0, email: "abc@def.nl", password: "aaaaa", name: "abc" }, { id: 1, email: undefined, password: "dcasfdas23", name: "gdfgdf322asdf" }]; // array of users
 
 
 
@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ArrToTable striped hover data={data} variant="dark" size="sm" responsive="sm" />
+    <ArrToTable striped hover data={users} variant="dark" size="sm" responsive="sm" />
   </React.StrictMode>
 );
 
