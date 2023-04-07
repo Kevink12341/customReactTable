@@ -245,7 +245,14 @@ class ArrToTable extends React.Component<Props, State> {
     if(data){
       let keys = Object.keys(this.props.data[0])
       keys.map((key,index) => {
-        dropdownItems.push(<Dropdown.Item as="button" onClick={e => this.handleSearchButton(e)}>{key}</Dropdown.Item>)
+        dropdownItems.push(
+          <>
+          <div onClick={e => this.handleSearchButton(e)}>
+            <Dropdown.Item as="button">{key}</Dropdown.Item> 
+            <input type="checkbox" name={key} value={key}></input>
+          </div>
+        </>
+        )
       });
     };
 
