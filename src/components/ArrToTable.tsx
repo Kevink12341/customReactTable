@@ -3,7 +3,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFontAwesome, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import React, { ReactElement, ReactNode } from "react"
-import { Col, Container, Form, Row } from "react-bootstrap";
+import { Col, Container, Form, Row , Dropdown, DropdownButton} from "react-bootstrap";
 import Table, { TableProps } from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import mySortFunction from "../helpers/sorting";
@@ -26,11 +26,14 @@ interface State {
   paginationIndex: number;
 };
 
+
 class ArrToTable extends React.Component<Props, State> {
   public static defaultProps ={
       limit: 50
-  }
+  };
   maxLimitPages: number =  1
+
+
 
   constructor(props: Props) {
     super(props);
@@ -60,7 +63,7 @@ class ArrToTable extends React.Component<Props, State> {
 
     if(paginationIndex){
       data = this.pagination(data, paginationIndex, this.props.limit)
-    }
+    }  
 
     return data
   }
@@ -176,6 +179,10 @@ class ArrToTable extends React.Component<Props, State> {
     }
   }
 
+  handleSearchButton(e:any){
+    console.log(e)
+  }
+
   render() {
     let data  = this.props.data
     let paginationIndex = this.state.paginationIndex
@@ -234,6 +241,14 @@ class ArrToTable extends React.Component<Props, State> {
       );
     };
 
+    let dropdownItems: Array<ReactNode> = [];
+    if(data){
+      let keys = Object.keys(this.props.data[0])
+      keys.map((key,index) => {
+        dropdownItems.push(<Dropdown.Item as="button" onClick={e => this.handleSearchButton(e)}>{key}</Dropdown.Item>)
+      });
+    };
+
     return (
       <>
         <Container fluid="true">
@@ -245,6 +260,14 @@ class ArrToTable extends React.Component<Props, State> {
                   </Form.Control>
                 </>
               </Form.Group>
+            </Col>
+
+            <Col xs="2">
+              <Dropdown>
+                <DropdownButton id="dropdown-item-button" title="Dropdown button">
+                  {dropdownItems}
+                </DropdownButton>
+              </Dropdown>
             </Col>
             <Col xs="1">
               <FontAwesomeIcon icon={faMagnifyingGlass} />

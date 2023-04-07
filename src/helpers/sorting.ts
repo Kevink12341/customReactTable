@@ -28,7 +28,8 @@ function mySortFunction(data:Array<any>, searchKey:any, direction?:string ): Arr
 function sortingHelper(data: Array<any>, searchKey: "string"):string{
     // probably needs a rewrite for bigger datasets.
     let datatype = ""
-    for(let i = 1 ; i< data.length ; i++) {
+    let loops = data.length > 1000 ? 1000 : data.length
+    for(let i = 1 ; i < loops ; i++) {
         if(typeof(data[i][searchKey]) != typeof(data[i-1][searchKey])){
             datatype = "mixed"
             break
