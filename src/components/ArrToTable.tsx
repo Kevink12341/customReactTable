@@ -24,7 +24,7 @@ interface State {
   setapplySortingIconName: "sort-up" | "sort-down" | undefined
   selectedTableHeaderIndex: number | undefined;
   paginationIndex: number;
-  toggleSearchCheckboxes?: any
+  toggleSearchCheckboxes: any
 };
 
 
@@ -38,7 +38,7 @@ class ArrToTable extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined, paginationIndex: 1 };
+    this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined, paginationIndex: 1, toggleSearchCheckboxes: "all" };
 
     this.searchPhraseHandler = this.searchPhraseHandler.bind(this);
     this.applySorting = this.applySorting.bind(this);
@@ -80,6 +80,7 @@ class ArrToTable extends React.Component<Props, State> {
   };
 
   applySearchFilter(data: Array<any>, searchValue: string ){
+    let keySearch = this.state.toggleSearchCheckboxes
     /* search filter over any value in any column/row
       to do:
       - filter over key phrases
@@ -90,15 +91,20 @@ class ArrToTable extends React.Component<Props, State> {
       data.forEach((row, index) => {
         if (row) {
           for (const key in row) {
-            if (row[key]!= undefined && row[key].toString().toLowerCase().includes(searchValue.toString().toLowerCase())) {
-              if (data)
+            // search on single key
+            if(keySearch && key == keySearch && row[key] != undefined && row[keySearch].toString().toLowerCase().includes(searchValue.toString().toLowerCase())){
+              filteredDataArray.push(data[index])
+              break
+            }
+            // search on all keys
+            else if(keySearch == "all" && row[key]!= undefined && row[key].toString().toLowerCase().includes(searchValue.toString().toLowerCase())){
                 filteredDataArray.push(data[index]);
+                break
             };
           };
         };
       });
-      let removeDuplicates = [...new Set(filteredDataArray)];
-      data = removeDuplicates
+      data = filteredDataArray
     };
     return data
   };
@@ -181,12 +187,9 @@ class ArrToTable extends React.Component<Props, State> {
     }
   }
 
-  handleSearchButton(e:any, key?: any, index?: number){
-    e.preventDefault();
+  handleSearchButton(e:any, key?: any){
     let {toggleSearchCheckboxes} =  this.state
-    console.log(e, key, index)
-    let checkboxSelected = this.state.toggleSearchCheckboxes === key ? this.setState({toggleSearchCheckboxes: undefined}) : this.setState({toggleSearchCheckboxes: key})
-  
+    let checkboxSelected = this.state.toggleSearchCheckboxes === key ? this.setState({toggleSearchCheckboxes: "all"}) : this.setState({toggleSearchCheckboxes: key})
   }
 
   render() {
@@ -255,12 +258,12 @@ class ArrToTable extends React.Component<Props, State> {
         dropdownItems.push(
           <>
           <Container>
-            <Row key={index +"row"} onClick={e => {this.handleSearchButton(e, key, index), e.preventDefault()}}>
+            <Row key={index +"row"} onClick={e => {this.handleSearchButton(e, key)}}>
               <Col sm={{span: 8}} key={index +"col1"}>
-                <Dropdown.Item as="text" key={index + "item"} onClick={e => e.preventDefault()} >{key}</Dropdown.Item> 
+                <Dropdown.Item as="button" key={index + "item"} >{key}</Dropdown.Item> 
               </Col>
               <Col key={index + "col2"}>
-                <input type="checkbox" name={key} value={key} key={index +"input"} checked={renderCheckbox == key || renderCheckbox == undefined ? true : false} readOnly></input>
+                <input type="checkbox" name={key} value={key} key={index +"input"} checked={renderCheckbox == key || renderCheckbox == "all" ? true : false} readOnly ></input>
               </Col>
             </Row>
           </Container>
@@ -285,6 +288,7 @@ class ArrToTable extends React.Component<Props, State> {
             <Col xs="2">
               <Dropdown >
                 <DropdownButton id="dropdown-item-button" title="Search filters">
+                  <p> Search on Key / Search All</p>
                   {dropdownItems}
                 </DropdownButton>
               </Dropdown>
