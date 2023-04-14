@@ -24,6 +24,7 @@ interface State {
   setapplySortingIconName: "sort-up" | "sort-down" | undefined
   selectedTableHeaderIndex: number | undefined;
   paginationIndex: number;
+  toggleSearchCheckboxes?: any
 };
 
 
@@ -42,6 +43,7 @@ class ArrToTable extends React.Component<Props, State> {
     this.searchPhraseHandler = this.searchPhraseHandler.bind(this);
     this.applySorting = this.applySorting.bind(this);
     this.handleTableHeaderClick = this.handleTableHeaderClick.bind(this);
+    this.handleSearchButton =  this.handleSearchButton.bind(this)
   }
 
   filterHandler(){
@@ -179,13 +181,18 @@ class ArrToTable extends React.Component<Props, State> {
     }
   }
 
-  handleSearchButton(e:any){
-    console.log(e)
+  handleSearchButton(e:any, key?: any, index?: number){
+    e.preventDefault();
+    let {toggleSearchCheckboxes} =  this.state
+    console.log(e, key, index)
+    let checkboxSelected = this.state.toggleSearchCheckboxes === key ? this.setState({toggleSearchCheckboxes: undefined}) : this.setState({toggleSearchCheckboxes: key})
+  
   }
 
   render() {
     let data  = this.props.data
     let paginationIndex = this.state.paginationIndex
+    let renderCheckbox =  this.state.toggleSearchCheckboxes
 
     data = this.filterHandler();
 
@@ -247,10 +254,16 @@ class ArrToTable extends React.Component<Props, State> {
       keys.map((key,index) => {
         dropdownItems.push(
           <>
-          <div onClick={e => this.handleSearchButton(e)}>
-            <Dropdown.Item as="button">{key}</Dropdown.Item> 
-            <input type="checkbox" name={key} value={key}></input>
-          </div>
+          <Container>
+            <Row key={index +"row"} onClick={e => {this.handleSearchButton(e, key, index), e.preventDefault()}}>
+              <Col sm={{span: 8}} key={index +"col1"}>
+                <Dropdown.Item as="text" key={index + "item"} onClick={e => e.preventDefault()} >{key}</Dropdown.Item> 
+              </Col>
+              <Col key={index + "col2"}>
+                <input type="checkbox" name={key} value={key} key={index +"input"} checked={renderCheckbox == key || renderCheckbox == undefined ? true : false} readOnly></input>
+              </Col>
+            </Row>
+          </Container>
         </>
         )
       });
@@ -270,8 +283,8 @@ class ArrToTable extends React.Component<Props, State> {
             </Col>
 
             <Col xs="2">
-              <Dropdown>
-                <DropdownButton id="dropdown-item-button" title="Dropdown button">
+              <Dropdown >
+                <DropdownButton id="dropdown-item-button" title="Search filters">
                   {dropdownItems}
                 </DropdownButton>
               </Dropdown>
