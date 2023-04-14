@@ -54,9 +54,16 @@ class ArrToTable extends React.Component<Props, State> {
     */
     let { selectedTableHeaderIndex, searchValue, paginationIndex} = this.state
     let data = this.props.data
+    let filterMode = this.state.toggleSearchCheckboxes
 
     if(searchValue != undefined && data){
-      data = this.applySearchFilter(data, searchValue);
+      // data = this.applySearchFilter(data, searchValue);
+      if(filterMode == "all"){
+        data.filter(this.searchAllFilter)
+      }
+      if(filterMode != "all"){
+        data.filter(this.searchKeyFilter)
+      }
     };
 
     if(data.length > 0  && selectedTableHeaderIndex != undefined){
@@ -79,35 +86,28 @@ class ArrToTable extends React.Component<Props, State> {
     this.setState({searchValue: searchValueUnformatted});
   };
 
-  applySearchFilter(data: Array<any>, searchValue: string ){
-    let keySearch = this.state.toggleSearchCheckboxes
-    /* search filter over any value in any column/row
-      to do:
-      - filter over key phrases
-      - filter over multiple keys
-    */
-    let filteredDataArray: Array<any> = [];
-    if (data) {
-      data.forEach((row, index) => {
-        if (row) {
-          for (const key in row) {
-            // search on single key
-            if(keySearch && key == keySearch && row[key] != undefined && row[keySearch].toString().toLowerCase().includes(searchValue.toString().toLowerCase())){
-              filteredDataArray.push(data[index])
-              break
-            }
-            // search on all keys
-            else if(keySearch == "all" && row[key]!= undefined && row[key].toString().toLowerCase().includes(searchValue.toString().toLowerCase())){
-                filteredDataArray.push(data[index]);
-                break
-            };
-          };
-        };
-      });
-      data = filteredDataArray
-    };
-    return data
-  };
+  searchAllFilter(dataArray: Array<any>){
+    let searchValue:string|undefined = this.state.searchValue;
+    if(searchValue != undefined){
+      if(dataArray.includes(searchValue)){
+        return true
+      }
+      else return false
+  
+    }
+  }
+  searchKeyFilter(dataArray: Array<any>){
+    let searchValue =  this.state.searchValue;
+    let columnKey = this.state.toggleSearchCheckboxes;
+    let keys = Object.keys(dataArray)
+    keys.forEach(key =>{
+      if(searchValue != undefined && key == columnKey && dataArray.includes(searchValue)){
+        return true
+      }
+      else return false
+    })
+
+  }
 
   applySorting(index: number, dataParam: Array<any>) {
     /* basic bubble sorting
