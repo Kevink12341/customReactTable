@@ -7,6 +7,7 @@ import { Col, Container, Form, Row , Dropdown, DropdownButton} from "react-boots
 import Table, { TableProps } from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import mySortFunction from "../helpers/sorting";
+import { AnyARecord } from "dns";
 
 library.add(fas, faFontAwesome)
 
@@ -18,7 +19,7 @@ interface Props extends TableProps {
 
 interface State {
   header?: any;
-  searchValue: string | undefined;
+  searchValue: string ;
   searchArray?: Array<any>;
   applySortingToggle: boolean | undefined;
   setapplySortingIconName: "sort-up" | "sort-down" | undefined
@@ -38,13 +39,24 @@ class ArrToTable extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: undefined, paginationIndex: 1, toggleSearchCheckboxes: "all" };
+    this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: "", paginationIndex: 1, toggleSearchCheckboxes: "all" };
 
     this.searchPhraseHandler = this.searchPhraseHandler.bind(this);
     this.applySorting = this.applySorting.bind(this);
     this.handleTableHeaderClick = this.handleTableHeaderClick.bind(this);
     this.handleSearchButton =  this.handleSearchButton.bind(this)
+    this.searchColumnKeyFilter = this.searchColumnKeyFilter.bind(this);
+    this.searchEntireRowFilter = this.searchEntireRowFilter.bind(this);
   }
+
+  searchPhraseHandler(event: any) {
+    // input field handler for search phrases
+    // no formatting/validity check yet
+    let {searchValue} =  this.state
+    let searchValueUnformatted = event.target.value != undefined ? event.target.value.toString() : "";
+
+    this.setState({searchValue: searchValueUnformatted});
+  };
 
   filterHandler(){
     /* calls the filter, sorting && limit function
@@ -58,10 +70,10 @@ class ArrToTable extends React.Component<Props, State> {
 
     if(searchValue != undefined && data){
       // data = this.applySearchFilter(data, searchValue);
-      if(filterMode == "all"){
+      if(filterMode == "all" && searchValue != ''){
         data.filter(this.searchEntireRowFilter)
       }
-      if(filterMode != "all"){
+      if(filterMode != "all" && searchValue != ''){
         data.filter(this.searchColumnKeyFilter)
       }
     };
@@ -77,22 +89,17 @@ class ArrToTable extends React.Component<Props, State> {
     return data
   }
 
-  searchPhraseHandler(event: any) {
-    // input field handler for search phrases
-    // no formatting/validity check yet
-    let searchValue =  this.state
-    let searchValueUnformatted = event.target.value != undefined ? event.target.value : undefined;
-
-    this.setState({searchValue: searchValueUnformatted});
-  };
-
-  searchEntireRowFilter(dataArray: Array<any>){
-    let searchValue:string|undefined = this.state.searchValue;
-    if(searchValue != undefined){
-      if(dataArray.includes(searchValue)){
-        return true
-      }
-      else return false
+  searchEntireRowFilter(dataArray: {[key: string]: string }){
+    let searchValue:string = this.state.searchValue;
+    const keys = Object.keys(dataArray)
+    if(searchValue != undefined ){
+      keys.forEach(key =>{
+        if(dataArray[key] != undefined && dataArray[key].toString().toLowerCase().includes(searchValue)){
+          console.log(dataArray[key])
+          return true
+        }
+        else return false
+      })
     };
   };
 
