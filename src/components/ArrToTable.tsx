@@ -59,10 +59,10 @@ class ArrToTable extends React.Component<Props, State> {
     if(searchValue != undefined && data){
       // data = this.applySearchFilter(data, searchValue);
       if(filterMode == "all"){
-        data.filter(this.searchAllFilter)
+        data.filter(this.searchEntireRowFilter)
       }
       if(filterMode != "all"){
-        data.filter(this.searchKeyFilter)
+        data.filter(this.searchColumnKeyFilter)
       }
     };
 
@@ -86,17 +86,17 @@ class ArrToTable extends React.Component<Props, State> {
     this.setState({searchValue: searchValueUnformatted});
   };
 
-  searchAllFilter(dataArray: Array<any>){
+  searchEntireRowFilter(dataArray: Array<any>){
     let searchValue:string|undefined = this.state.searchValue;
     if(searchValue != undefined){
       if(dataArray.includes(searchValue)){
         return true
       }
       else return false
-  
-    }
-  }
-  searchKeyFilter(dataArray: Array<any>){
+    };
+  };
+
+  searchColumnKeyFilter(dataArray: Array<any>){
     let searchValue =  this.state.searchValue;
     let columnKey = this.state.toggleSearchCheckboxes;
     let keys = Object.keys(dataArray)
@@ -105,9 +105,8 @@ class ArrToTable extends React.Component<Props, State> {
         return true
       }
       else return false
-    })
-
-  }
+    });
+  };
 
   applySorting(index: number, dataParam: Array<any>) {
     /* basic bubble sorting
