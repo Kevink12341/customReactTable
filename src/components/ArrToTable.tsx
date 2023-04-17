@@ -71,10 +71,10 @@ class ArrToTable extends React.Component<Props, State> {
     if(searchValue != undefined && data){
       // data = this.applySearchFilter(data, searchValue);
       if(filterMode == "all" && searchValue != ''){
-        data.filter(this.searchEntireRowFilter)
+        data = data.filter(this.searchEntireRowFilter)
       }
       if(filterMode != "all" && searchValue != ''){
-        data.filter(this.searchColumnKeyFilter)
+        data = data.filter(this.searchColumnKeyFilter)
       }
     };
 
@@ -89,30 +89,45 @@ class ArrToTable extends React.Component<Props, State> {
     return data
   }
 
-  searchEntireRowFilter(dataArray: {[key: string]: string }){
+  searchEntireRowFilter(data: {[key: string]:string}){
+    // .filter(searchEntireRowFilter)
+    // searches the over all the keys over the object
+    // returns a value on the first value found inside the loop and breaks the loop to prevent duplicates
     let searchValue:string = this.state.searchValue;
-    const keys = Object.keys(dataArray)
-    if(searchValue != undefined ){
-      keys.forEach(key =>{
-        if(dataArray[key] != undefined && dataArray[key].toString().toLowerCase().includes(searchValue)){
-          console.log(dataArray[key])
-          return true
+    let valueIncluded;
+    if(searchValue != undefined){
+      for (const key in data) {
+        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue)){
+          valueIncluded = true
+          break
         }
-        else return false
-      })
+        else{
+          valueIncluded =  false
+        };
+      };
     };
+    return valueIncluded
   };
 
-  searchColumnKeyFilter(dataArray: Array<any>){
-    let searchValue =  this.state.searchValue;
-    let columnKey = this.state.toggleSearchCheckboxes;
-    let keys = Object.keys(dataArray)
-    keys.forEach(key =>{
-      if(searchValue != undefined && key == columnKey && dataArray.includes(searchValue)){
-        return true
-      }
-      else return false
-    });
+  searchColumnKeyFilter(data: {[key:string]: string}){
+    // .filter(searchColumnKeyFilter)
+    // Searches for the value with a specific key on object[key]
+    // only returns a value when the Searchvalue is found in that object[key]
+    let searchValue:string = this.state.searchValue;
+    let valueIncluded;
+    let keySearch = this.state.toggleSearchCheckboxes
+    if(searchValue != undefined){
+      for (const key in data) {
+        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue) && key == keySearch ){
+          valueIncluded = true
+          break
+        }
+        else{
+          valueIncluded =  false
+        };
+      };
+    };
+    return valueIncluded
   };
 
   applySorting(index: number, dataParam: Array<any>) {
