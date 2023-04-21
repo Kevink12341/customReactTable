@@ -7,7 +7,6 @@ import { Col, Container, Form, Row , Dropdown, DropdownButton} from "react-boots
 import Table, { TableProps } from 'react-bootstrap/Table';
 import Pagination from 'react-bootstrap/Pagination';
 import mySortFunction from "../helpers/sorting";
-import { AnyARecord } from "dns";
 
 library.add(fas, faFontAwesome)
 
@@ -69,7 +68,6 @@ class ArrToTable extends React.Component<Props, State> {
     let filterMode = this.state.toggleSearchCheckboxes
 
     if(searchValue != undefined && data){
-      // data = this.applySearchFilter(data, searchValue);
       if(filterMode == "all" && searchValue != ''){
         data = data.filter(this.searchEntireRowFilter)
       }
