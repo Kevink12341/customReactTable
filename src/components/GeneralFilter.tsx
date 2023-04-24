@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ReactElement, ReactNode } from "react"
-import { Button, Col, Container, Dropdown, Row } from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Row, Accordion, InputGroup, Form } from "react-bootstrap";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { faFontAwesome } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
+import AccordionBody from "react-bootstrap/esm/AccordionBody";
+import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
 
 library.add(fas, faFontAwesome)
 
@@ -32,8 +34,7 @@ class Filter extends React.Component <Props,State> {
     };
 
     handleButtonChanges(event:any, indexedRow: number, key:string, data:Array<rowData>){
-        
-        console.log(data)
+
         if(event){
             data[indexedRow].buttonValue =  key
         };
@@ -68,16 +69,29 @@ class Filter extends React.Component <Props,State> {
         }
 
         return data
-    }
+    };
 
     removeAndShiftButtonDataIndex(index:number){
-        let {buttonData} = this.state
-        buttonData.splice(index, 1)
+        let {buttonData} = this.state;
+        buttonData.splice(index, 1);
         for(let x = index; x < buttonData.length; x++){
             buttonData[x].rowIndex = buttonData[x].rowIndex -1
-       }
+       };
        return buttonData
-    }
+    };
+
+    handleTextInput(event:any, index: number, data: Array<rowData>){
+        if(event){
+            data[index].buttonText = event.target.value
+        };
+        this.setState({buttonData: data}) 
+    };
+
+    handleClick(e: any, data: Array<any>){
+        data.forEach(row => {
+            console.log(JSON.parse(JSON.stringify(row)))
+        })
+    };
 
     render(): React.ReactNode {
         let data = this.props.data;
@@ -86,6 +100,8 @@ class Filter extends React.Component <Props,State> {
         let renderContainers: Array<ReactNode> = [];
 
         buttonData = this.initiateFilterData();
+
+        console.log(buttonData)
 
         for(let index = 0; index < containers; index++){
 
@@ -117,8 +133,9 @@ class Filter extends React.Component <Props,State> {
                             </DropdownButton>
                         </Col>
                         <Col>
-                            <input>
-                            </input>
+                            <InputGroup className="mb-3">
+                                <Form.Control as="textarea" aria-label="With textarea" onChange={e => this.handleTextInput(e, index, buttonData)}/>
+                            </InputGroup>
                         </Col>
                         <Col>
                              {fontAwesomeIcon}
@@ -130,7 +147,20 @@ class Filter extends React.Component <Props,State> {
     
         return(
             <>
-             {renderContainers}
+            <Accordion defaultActiveKey="0">
+                <Accordion.Item eventKey="1">
+                    <AccordionHeader>
+                        Filters
+                    </AccordionHeader>
+                    <AccordionBody>
+                        {renderContainers}
+                        <Button variant="primary" size="lg" onClick={e => this.handleClick(e, data)}>
+                            Filter dataset
+                        </Button>
+                    </AccordionBody>
+                </Accordion.Item>
+            </Accordion>
+
             </>
         )
     }
