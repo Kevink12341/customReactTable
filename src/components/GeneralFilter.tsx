@@ -7,7 +7,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import AccordionBody from "react-bootstrap/esm/AccordionBody";
 import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
-import {possibleFilterMethods} from "../helpers/filtersMethods";
+import {possibleFilterMethods, useFilterMethod} from "../helpers/filtersMethods";
 
 library.add(fas, faFontAwesome)
 
@@ -96,9 +96,9 @@ class Filter extends React.Component <Props,State> {
     };
 
     handleClick(e: any, data: Array<any>){
-        data.forEach(row => {
-            // console.log(JSON.parse(JSON.stringify(row)))
-        })
+      if(e){
+        console.log(useFilterMethod("include", data, this.state.buttonData[0].filterValue, this.state.buttonData[0].buttonValue))
+      }
     };
 
     render(): React.ReactNode {

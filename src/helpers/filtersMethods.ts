@@ -1,3 +1,5 @@
+import filters from "./filters"
+
 export function possibleFilterMethods(keyType:any):Array<any>{
     if(keyType === "string"){
         let methods = ["include", "exclude", "match"]
@@ -15,10 +17,13 @@ export function possibleFilterMethods(keyType:any):Array<any>{
     return []
 };
 
-export function useFilterMethod(method:string){
+export function useFilterMethod(method:string, data: Array<{[key:string]:any}>, searchTerm:string, searchKey: string){
+    let parameters = {
+        Key: searchKey,
+        searchTerm: searchTerm}
     switch(method){
         case "include":
-            return
+            return data = data.filter(filters.includeFilter,parameters)
         case "exclude":
             return
         case "match":
@@ -43,3 +48,6 @@ export function useFilterMethod(method:string){
             return
     };
 };
+
+
+
