@@ -1,23 +1,27 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ReactElement, ReactNode } from "react"
-import { Button, Col, Container, Dropdown, Row, Accordion, InputGroup, Form } from "react-bootstrap";
+import { Button, Col, Container, Dropdown, Row, Accordion, InputGroup, Form, ButtonGroup } from "react-bootstrap";
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { faFontAwesome } from "@fortawesome/free-solid-svg-icons";
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import AccordionBody from "react-bootstrap/esm/AccordionBody";
 import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
+import {possibleFilterMethods} from "../helpers/filtersMethods";
 
 library.add(fas, faFontAwesome)
 
 interface Props {
     data: Array<any>;
+    datamodel?: {[key:string]:any}; 
 }
 
 interface rowData {
     rowIndex: number;
     buttonValue: string;
     buttonText: string;
+    filterValue: string;
+    filterMode: string;
 }
 
 interface State {
@@ -33,7 +37,7 @@ class Filter extends React.Component <Props,State> {
 
     };
 
-    handleButtonChanges(event:any, indexedRow: number, key:string, data:Array<rowData>){
+    handleButtonChanges(event:any, indexedRow: number, key: string , data:Array<rowData>){
 
         if(event){
             data[indexedRow].buttonValue =  key
@@ -51,7 +55,9 @@ class Filter extends React.Component <Props,State> {
                 let setupData = {
                     rowIndex: i,
                     buttonValue: "default",
-                    buttonText: ""
+                    buttonText: "",
+                    filterValue: "",
+                    filterMode: "",
                 };
                 data.push(setupData)
             }
@@ -60,7 +66,9 @@ class Filter extends React.Component <Props,State> {
             let setupData = {
                 rowIndex: this.state.buttonData.length,
                 buttonValue: "default",
-                buttonText: ""
+                buttonText: "",
+                filterValue: "",
+                filterMode: "",
             };
             data.push(setupData)
         }
@@ -89,7 +97,7 @@ class Filter extends React.Component <Props,State> {
 
     handleClick(e: any, data: Array<any>){
         data.forEach(row => {
-            console.log(JSON.parse(JSON.stringify(row)))
+            // console.log(JSON.parse(JSON.stringify(row)))
         })
     };
 
@@ -133,9 +141,18 @@ class Filter extends React.Component <Props,State> {
                             </DropdownButton>
                         </Col>
                         <Col>
-                            <InputGroup className="mb-3">
+                            <InputGroup className="mb-4">
                                 <Form.Control as="textarea" aria-label="With textarea" onChange={e => this.handleTextInput(e, index, buttonData)}/>
                             </InputGroup>
+                        </Col>
+                        <Col>
+                            {buttonData[index].buttonValue != "default" && this.props.datamodel &&
+                                <DropdownButton id="dropdown-basic-button" title={"filter options"}> 
+                                    {possibleFilterMethods(this.props.datamodel[buttonData[index].buttonValue]).map((method, index2) => 
+                                            <Dropdown.Item key={index2}> {method}</Dropdown.Item>
+                                    )}
+                                </DropdownButton>
+                            }
                         </Col>
                         <Col>
                              {fontAwesomeIcon}
@@ -147,7 +164,7 @@ class Filter extends React.Component <Props,State> {
     
         return(
             <>
-            <Accordion defaultActiveKey="0">
+            <Accordion defaultActiveKey="1">
                 <Accordion.Item eventKey="1">
                     <AccordionHeader>
                         Filters
