@@ -2,11 +2,11 @@ import filters from "./filters"
 
 export function possibleFilterMethods(keyType:any):Array<any>{
     if(keyType === "string"){
-        let methods = ["include", "exclude", "match"]
+        let methods = ["include","exclude","match"]
         return methods
     };
     if(keyType === "number"){
-        let methods = ["greaterThanEqual", "greaterThan", "lessThanEqual", "lessThan", "equals", "not-equals", "include", "exclude", "maxRange", "minRange"]
+        let methods = ["greaterThanEqual","greaterThan","lessThanEqual","lessThan","equals","not-equals","include","exclude","maxRange","minRange"]
         return methods
     };
     if(keyType === "boolean"){
@@ -25,28 +25,33 @@ export function useFilterMethod(method:string, data: Array<{[key:string]:any}>, 
         case "include":
             return data = data.filter(filters.includeFilter,parameters)
         case "exclude":
-            return
+            return data = data.filter(filters.excludeFilter,parameters)
         case "match":
-            return
+            return data = data.filter(filters.matchFilter, parameters)
         case "greaterThanEqual":
-            return
+            return data = data.filter(filters.greaterThanEqualsFilter, parameters)
         case "greaterThan":
-            return
+            return data = data.filter(filters.greaterThanFilter, parameters)
         case "lessThanEqual":
-            return
+            return data = data.filter(filters.lessThanEqualFilter, parameters)
         case "lessThan":
-            return
+            return data = data.filter(filters.lessThanFilter, parameters)
         case "equals":
-            return
+            return data = data.filter(filters.equalsFilter, parameters)
         case "not-equals":
-            return
+            return data = data.filter(filters.notEqualsFilter, parameters)
         case "maxRange":
-            return
+            return data
         case "minRange":
-            return
+            return data
         case "boolean":
-            return
+            return data
+        default:
+            return data
     };
+    if(data == undefined){
+        return [];
+    }
 };
 
 

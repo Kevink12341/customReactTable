@@ -34,3 +34,9 @@ users = users.map((user: any) => {
 
 
 <ResponsiveTable data={users} />
+
+
+*** todo ***
+
+Wrapper
+UseContext(data)

@@ -12,6 +12,13 @@ function excludeFilter(this:any, row:{[key:string]:any}){
     return true
 };
 
+function matchFilter(this:any, row: {[key:string]:any}){
+    if(row[this.Key].match(this.searchTerm)){
+        return true
+    };
+    return false
+};
+
 function greaterThanEqualsFilter(this:any, row:{[key:string]:any}){
     if(row[this.Key] >= Number(this.searchTerm)){
         return true
@@ -26,11 +33,46 @@ function greaterThanFilter(this:any, row:{[key:string]:any}){
     return false
 };
 
+function lessThanEqualFilter(this:any, row: {[key:string]:any}){
+    if(row[this.Key] <= Number(this.searchTerm)){
+        return true
+    };
+    return false
+};
+
+function lessThanFilter(this:any, row: {[key:string]:any}){
+    if(row[this.Key] < Number(this.searchTerm)){
+        return true
+    };
+    return false
+};
+
+function equalsFilter(this:any, row: {[key:string]:any}){
+    if(row[this.Key] == Number(this.searchTerm)){
+        return true
+    };
+    return false
+};
+
+function notEqualsFilter(this:any, row: {[key:string]:any}){
+    if(row[this.Key] != Number(this.searchTerm)){
+        return true
+    };
+    return false
+};
+
+
 const filters = {
     includeFilter,
     excludeFilter,
+    matchFilter, 
     greaterThanEqualsFilter,
     greaterThanFilter,
+    lessThanEqualFilter,
+    lessThanFilter,
+    equalsFilter,
+    notEqualsFilter,
+
 }
 
 export default filters

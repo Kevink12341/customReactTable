@@ -8,108 +8,124 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import AccordionBody from "react-bootstrap/esm/AccordionBody";
 import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
 import {possibleFilterMethods, useFilterMethod} from "../helpers/filtersMethods";
+import ArrToTable from "./ArrToTable";
 
 library.add(fas, faFontAwesome)
 
 interface Props {
-    data: Array<any>;
+    data: Array<{[key:string]:any}>;
     datamodel?: {[key:string]:any}; 
 }
 
 interface rowData {
     rowIndex: number;
-    buttonValue: string;
-    buttonText: string;
-    filterValue: string;
-    filterMode: string;
+    keyValue: string;
+    textboxValue: string;
+    filterType: string;
+    filterMethod: string;
 }
 
 interface State {
     containers: number;
-    buttonData: Array<rowData> ;
+    rowData: Array<rowData> ;
+    data: Array<{[key:string]:any}>;
 }
 
 class Filter extends React.Component <Props,State> {
 
     constructor(props: Props){
         super(props);
-        this.state = {containers: 1, buttonData: []}
+        this.state = {containers: 1, rowData: [], data: this.props.data}
 
     };
 
     handleButtonChanges(event:any, indexedRow: number, key: string , data:Array<rowData>){
 
         if(event){
-            data[indexedRow].buttonValue =  key
+            data[indexedRow].keyValue =  key
         };
 
-        this.setState({buttonData: data})
+        this.setState({rowData: data})
 
     };
 
     initiateFilterData(){
         let { containers } = this.state
         let data = []
-        if(this.state.buttonData.length == 0){
+        if(this.state.rowData.length == 0){
             for(let i = 0; i<containers ; i++){
                 let setupData = {
                     rowIndex: i,
-                    buttonValue: "default",
-                    buttonText: "",
-                    filterValue: "",
-                    filterMode: "",
+                    keyValue: "default",
+                    textboxValue: "",
+                    filterType: "",
+                    filterMethod: "",
                 };
                 data.push(setupData)
             }
-        } else if(this.state.buttonData.length < this.state.containers){
-            data = this.state.buttonData;
+        } else if(this.state.rowData.length < this.state.containers){
+            data = this.state.rowData;
             let setupData = {
-                rowIndex: this.state.buttonData.length,
-                buttonValue: "default",
-                buttonText: "",
-                filterValue: "",
-                filterMode: "",
+                rowIndex: this.state.rowData.length,
+                keyValue: "default",
+                textboxValue: "",
+                filterType: "",
+                filterMethod: "",
             };
             data.push(setupData)
         }
         else{
-            data = this.state.buttonData
+            data = this.state.rowData
         }
 
         return data
     };
 
-    removeAndShiftButtonDataIndex(index:number){
-        let {buttonData} = this.state;
-        buttonData.splice(index, 1);
-        for(let x = index; x < buttonData.length; x++){
-            buttonData[x].rowIndex = buttonData[x].rowIndex -1
+    removeAndShiftrowDataIndex(index:number){
+        let {rowData} = this.state;
+        rowData.splice(index, 1);
+        for(let x = index; x < rowData.length; x++){
+            rowData[x].rowIndex = rowData[x].rowIndex -1
        };
-       return buttonData
+       return rowData
     };
 
     handleTextInput(event:any, index: number, data: Array<rowData>){
         if(event){
-            data[index].buttonText = event.target.value
+            data[index].textboxValue = event.target.value
         };
-        this.setState({buttonData: data}) 
+        this.setState({rowData: data}) 
     };
 
-    handleClick(e: any, data: Array<any>){
+    handleClick(e: any, data: Array<{[key:string]: any}>, rowData: Array<rowData>){
       if(e){
-        console.log(useFilterMethod("include", data, this.state.buttonData[0].filterValue, this.state.buttonData[0].buttonValue))
-      }
+        rowData.forEach((row,index) => {
+            if(rowData[index].filterMethod != "" && rowData[index].textboxValue != "" && rowData[index].keyValue != "default" && data){
+                data  =  useFilterMethod(rowData[index].filterMethod, data, rowData[index].textboxValue, rowData[index].keyValue)
+                console.log(data)
+            };
+        });
+      };
+      this.setState({data: data})
     };
+
+    handleFilterMethods(e:any, index:number, data: Array<rowData>){
+        console.log(e.target.text, index)
+        if(e){
+            data[index].filterMethod =  e.target.text.trim()
+        }
+        this.setState({rowData: data})
+    }
 
     render(): React.ReactNode {
-        let data = this.props.data;
-        let { containers, buttonData } = this.state
+        let data = this.state.data;
+        let { containers, rowData } = this.state
 
         let renderContainers: Array<ReactNode> = [];
 
-        buttonData = this.initiateFilterData();
+        rowData = this.initiateFilterData();
 
-        console.log(buttonData)
+        console.log(rowData)
 
         for(let index = 0; index < containers; index++){
 
@@ -117,7 +133,7 @@ class Filter extends React.Component <Props,State> {
             let renderKeys: Array<ReactNode> = [];
             
             keys.forEach((key) => {
-                renderKeys.push(<Dropdown.Item key={key + index} onClick={(e) => {this.handleButtonChanges(e, index, key, buttonData)}}> {key} </Dropdown.Item>)
+                renderKeys.push(<Dropdown.Item key={key + index} onClick={(e) => {this.handleButtonChanges(e, index, key, rowData)}}> {key} </Dropdown.Item>)
             });
 
             let fontAwesomeIcon
@@ -128,34 +144,34 @@ class Filter extends React.Component <Props,State> {
                     if(event){
                         this.setState({containers: containers -1})
                         renderContainers = renderContainers.splice(index, 1)
-                        this.removeAndShiftButtonDataIndex(index)
+                        this.removeAndShiftrowDataIndex(index)
                     }
                 }}/>
             }
             renderContainers.push(
                 <Container key={index}>
                     <Row>
-                        <Col>
-                            <DropdownButton id="dropdown-basic-button" title={buttonData[index].rowIndex == index ? buttonData[index].buttonValue : "something"}>
+                        <Col sm={1}>
+                             {fontAwesomeIcon}
+                        </Col>
+                        <Col sm={2}>
+                            <DropdownButton id="dropdown-basic-button" title={rowData[index].rowIndex == index ? rowData[index].keyValue : "something"}>
                                 {renderKeys}
                             </DropdownButton>
                         </Col>
-                        <Col>
+                        <Col sm={5}>
                             <InputGroup className="mb-4">
-                                <Form.Control as="textarea" aria-label="With textarea" onChange={e => this.handleTextInput(e, index, buttonData)}/>
+                                <Form.Control as="textarea" aria-label="With textarea" onChange={e => this.handleTextInput(e, index, rowData)}/>
                             </InputGroup>
                         </Col>
-                        <Col>
-                            {buttonData[index].buttonValue != "default" && this.props.datamodel &&
+                        <Col sm={2}>
+                            {rowData[index].keyValue != "default" && this.props.datamodel &&
                                 <DropdownButton id="dropdown-basic-button" title={"filter options"}> 
-                                    {possibleFilterMethods(this.props.datamodel[buttonData[index].buttonValue]).map((method, index2) => 
-                                            <Dropdown.Item key={index2}> {method}</Dropdown.Item>
+                                    {possibleFilterMethods(this.props.datamodel[rowData[index].keyValue]).map((method, index2) => 
+                                            <Dropdown.Item active={rowData[index].filterMethod == method ? true : false} key={index2} onClick={(e) => {this.handleFilterMethods(e, index, rowData)}}> {method}</Dropdown.Item>
                                     )}
                                 </DropdownButton>
                             }
-                        </Col>
-                        <Col>
-                             {fontAwesomeIcon}
                         </Col>
                     </Row>
                 </Container>
@@ -171,13 +187,13 @@ class Filter extends React.Component <Props,State> {
                     </AccordionHeader>
                     <AccordionBody>
                         {renderContainers}
-                        <Button variant="primary" size="lg" onClick={e => this.handleClick(e, data)}>
+                        <Button variant="primary" size="lg" onClick={e => this.handleClick(e, data, rowData)}>
                             Filter dataset
                         </Button>
                     </AccordionBody>
                 </Accordion.Item>
             </Accordion>
-
+            <ArrToTable striped hover data={data} variant="dark" size="sm" responsive="sm" />
             </>
         )
     }

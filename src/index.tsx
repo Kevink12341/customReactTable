@@ -24,7 +24,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Filter data={data} datamodel={datamodel} />
-    <ArrToTable striped hover data={data} variant="dark" size="sm" responsive="sm" />
+    {/* <ArrToTable striped hover data={data} variant="dark" size="sm" responsive="sm" /> */}
   </React.StrictMode>
 );
 
