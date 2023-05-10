@@ -93,7 +93,7 @@ class ArrToTable extends React.Component<Props, State> {
     let valueIncluded;
     if(searchValue != undefined){
       for (const key in data) {
-        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue)){
+        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue.toLowerCase())){
           valueIncluded = true
           break
         }
@@ -114,7 +114,7 @@ class ArrToTable extends React.Component<Props, State> {
     let keySearch = this.state.toggleSearchCheckboxes
     if(searchValue != undefined){
       for (const key in data) {
-        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue) && key == keySearch ){
+        if(data[key] != undefined && data[key].toString().toLowerCase().includes(searchValue.toLowerCase()) && key == keySearch ){
           valueIncluded = true
           break
         }
