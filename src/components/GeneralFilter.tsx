@@ -7,8 +7,9 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core";
 import AccordionBody from "react-bootstrap/esm/AccordionBody";
 import AccordionHeader from "react-bootstrap/esm/AccordionHeader";
-import {possibleFilterMethods, useFilterMethod} from "../helpers/filtersMethods";
+import { possibleFilterMethods, useFilterMethod} from "../helpers/filtersMethods";
 import ArrToTable from "./ArrToTable";
+import type { methodOptions } from "../helpers/filtersMethods";
 
 library.add(fas, faFontAwesome)
 
@@ -22,7 +23,7 @@ interface rowData {
     keyValue: string;
     textboxValue: string;
     filterType: string;
-    filterMethod: string;
+    filterMethod: methodOptions | any;
 }
 
 interface State {

@@ -1,5 +1,7 @@
 import filters from "./filters"
 
+type methodOptions = "include" | "exclude" | "match" | "greaterThanEqual" | "greaterThan" | "lessThanEqual" | "lessThan" | "equals" | "not-equals" | "maxRange" | "minRange" | "boolean";
+
 export function possibleFilterMethods(keyType:any):Array<any>{
     if(keyType === "string"){
         let methods = ["include","exclude","match"]
@@ -17,7 +19,7 @@ export function possibleFilterMethods(keyType:any):Array<any>{
     return []
 };
 
-export function useFilterMethod(method:string, data: Array<{[key:string]:any}>, searchTerm:string, searchKey: string){
+export function useFilterMethod(method:methodOptions, data: Array<{[key:string]:any}>, searchTerm:string, searchKey: string){
     let parameters = {
         Key: searchKey,
         searchTerm: searchTerm}
@@ -49,10 +51,7 @@ export function useFilterMethod(method:string, data: Array<{[key:string]:any}>, 
         default:
             return data
     };
-    if(data == undefined){
-        return [];
-    }
 };
 
-
+export type {methodOptions}
 

@@ -34,8 +34,6 @@ class ArrToTable extends React.Component<Props, State> {
   };
   maxLimitPages: number =  1
 
-
-
   constructor(props: Props) {
     super(props);
     this.state = { applySortingToggle: undefined, setapplySortingIconName: undefined, selectedTableHeaderIndex: undefined, searchValue: "", paginationIndex: 1, toggleSearchCheckboxes: "all" };
@@ -246,7 +244,10 @@ class ArrToTable extends React.Component<Props, State> {
     // custom loop for tableHeaders
     let tableHeaders: Array<ReactNode> = [];
     if (data && data.length > 0) {
-      let keys = Object.keys(this.props.data[0]);
+      let keys;
+      if(this.props.data.length != 0){
+        keys = Object.keys(this.props.data[0]);
+      }
       if (keys) {
         keys.map((header, index: number) => (
           tableHeaders.push(
@@ -272,23 +273,28 @@ class ArrToTable extends React.Component<Props, State> {
 
     let dropdownItems: Array<ReactNode> = [];
     if(data){
-      let keys = Object.keys(this.props.data[0])
-      keys.map((key,index) => {
-        dropdownItems.push(
-          <>
-          <Container>
-            <Row key={index +"row"} onClick={e => {this.handleSearchButton(e, key)}}>
-              <Col sm={{span: 8}} key={index +"col1"}>
-                <Dropdown.Item as="button" key={index + "item"} >{key}</Dropdown.Item> 
-              </Col>
-              <Col key={index + "col2"}>
-                <input type="checkbox" name={key} value={key} key={index +"input"} checked={renderCheckbox == key || renderCheckbox == "all" ? true : false} readOnly ></input>
-              </Col>
-            </Row>
-          </Container>
-        </>
-        )
-      });
+      let keys;
+      if(this.props.data.length != 0 ){
+        keys = Object.keys(this.props.data[0])
+      }
+      if(keys){
+        keys.map((key,index) => {
+          dropdownItems.push(
+            <>
+            <Container>
+              <Row key={index +"row"} onClick={e => {this.handleSearchButton(e, key)}}>
+                <Col sm={{span: 8}} key={index +"col1"}>
+                  <Dropdown.Item as="button" key={index + "item"} >{key}</Dropdown.Item> 
+                </Col>
+                <Col key={index + "col2"}>
+                  <input type="checkbox" name={key} value={key} key={index +"input"} checked={renderCheckbox == key || renderCheckbox == "all" ? true : false} readOnly ></input>
+                </Col>
+              </Row>
+            </Container>
+          </>
+          )
+        });
+      }
     };
 
     return (
