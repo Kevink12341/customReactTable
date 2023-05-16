@@ -22,7 +22,7 @@ class AsyncData extends React.Component<{},State>{
     render(): React.ReactNode {
         return(
         <>
-            {this.state.data && <ArrToTable data={this.state.data} />}
+            {this.state.data && <ArrToTable striped hover data={this.state.data} />}
         </>
         );
     } ;
